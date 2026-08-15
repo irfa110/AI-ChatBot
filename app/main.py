@@ -12,12 +12,29 @@ def home():
     }
 
 
+# @app.get("/chat")
+# def chat(message: str):
+#     # response = ask_gemini(message)
+#     response = ask_ai(message)
+
+#     return {
+#         "message": message,
+#         "response": response,
+#     }
+
+
 @app.get("/chat")
-def chat(message: str):
-    # response = ask_gemini(message)
-    response = ask_ai(message)
+def chat(
+    session_id: str,
+    message: str,
+):
+    response = ask_ai(
+        session_id=session_id,
+        message=message,
+    )
 
     return {
+        "session_id": session_id,
         "message": message,
         "response": response,
     }

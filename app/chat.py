@@ -1,3 +1,4 @@
+### Simple AI ChatBot
 # import os
 
 # from dotenv import load_dotenv
@@ -16,18 +17,21 @@
 
 #     return response.content
 
-import os
 
-from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate
+### ChatBot with Prompt Template
 
-load_dotenv()
+# import os
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    google_api_key=os.getenv("GEMINI_API_KEY"),
-)
+# from dotenv import load_dotenv
+# from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_core.prompts import ChatPromptTemplate
+
+# load_dotenv()
+
+# llm = ChatGoogleGenerativeAI(
+#     model="gemini-2.5-flash",
+#     google_api_key=os.getenv("GEMINI_API_KEY"),
+# )
 
 # prompt = ChatPromptTemplate.from_messages(
 #     [
@@ -43,6 +47,51 @@ llm = ChatGoogleGenerativeAI(
 #     ]
 # )
 
+# prompt = ChatPromptTemplate.from_messages(
+#     [
+#         (
+#             "system",
+#             """
+#             You are an expert Python and Django developer.
+#             The user is a software developer learning AI.
+#             Explain technical concepts with simple examples.
+#             """
+#         ),
+#         (
+#             "human",
+#             "{message}"
+#         ),
+#     ]
+# )
+
+
+# def ask_ai(message: str) -> str:
+#     messages = prompt.format_messages(
+#         message=message
+#     )
+
+#     response = llm.invoke(messages)
+
+#     return response.content
+
+### ChatBot with Memory
+
+import os
+
+from dotenv import load_dotenv
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+from app.memory import get_history, add_message
+
+load_dotenv()
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    google_api_key=os.getenv("GEMINI_API_KEY"),
+)
+
 prompt = ChatPromptTemplate.from_messages(
     [
         (
@@ -53,6 +102,7 @@ prompt = ChatPromptTemplate.from_messages(
             Explain technical concepts with simple examples.
             """
         ),
+        MessagesPlaceholder(variable_name="history"),
         (
             "human",
             "{message}"
@@ -61,11 +111,25 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 
-def ask_ai(message: str) -> str:
+def ask_ai(session_id: str, message: str) -> str:
+
+    history = get_history(session_id)
+
     messages = prompt.format_messages(
-        message=message
+        history=history,
+        message=message,
+    )
+    print("Messages:", messages)
+    response = llm.invoke(messages)
+
+    add_message(
+        session_id,
+        HumanMessage(content=message),
     )
 
-    response = llm.invoke(messages)
+    add_message(
+        session_id,
+        AIMessage(content=response.content),
+    )
 
     return response.content
