@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from app.gemini import ask_gemini
+# from app.gemini import ask_gemini
+from app.chat import ask_ai
 
 app = FastAPI()
 
@@ -13,7 +14,8 @@ def home():
 
 @app.get("/chat")
 def chat(message: str):
-    response = ask_gemini(message)
+    # response = ask_gemini(message)
+    response = ask_ai(message)
 
     return {
         "message": message,
