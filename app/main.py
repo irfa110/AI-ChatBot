@@ -78,3 +78,8 @@ async def ai_service_error_handler(
 app.include_router(chat_router)
 app.include_router(auth_router)
 
+
+# from app.db.database import Base, engine
+# Base.metadata.create_all(
+#     bind=engine
+# )
