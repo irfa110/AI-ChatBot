@@ -5,6 +5,7 @@ from app.schemas import ChatRequest, ChatResponse
 from app.services.chat_service import (ask_ai, stream_ai,
                                        ask_ai_async, stream_ai_async)
 
+from app.services.stream_tool_chat_service import stream_with_tools
 from app.services.tool_chat_service import ask_with_tools
 
 router = APIRouter(
@@ -78,3 +79,15 @@ def chat_with_tools(request: ChatRequest):
         "message": request.message,
         "response": response,
     }
+
+
+@router.post("/tools/stream")
+def stream_chat(request: ChatRequest):
+
+    return StreamingResponse(
+        stream_with_tools(
+            session_id=request.session_id,
+            message=request.message,
+        ),
+        media_type="text/plain",
+    )
