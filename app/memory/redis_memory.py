@@ -3,6 +3,7 @@ import json
 from langchain_core.messages import (
     HumanMessage,
     AIMessage,
+    ToolMessage,
     BaseMessage,
 )
 
@@ -19,29 +20,36 @@ def get_history(session_id: str) -> list[BaseMessage]:
         -1,
     )
 
-    messages = []
+    # messages = []
 
-    for raw_message in raw_messages:
+    # for raw_message in raw_messages:
 
-        data = json.loads(raw_message)
+    #     data = json.loads(raw_message)
 
-        if data["type"] == "human":
+    #     if data["type"] == "human":
 
-            messages.append(
-                HumanMessage(
-                    content=data["content"]
-                )
-            )
+    #         messages.append(
+    #             HumanMessage(
+    #                 content=data["content"]
+    #             )
+    #         )
 
-        elif data["type"] == "ai":
+    #     elif data["type"] == "ai":
 
-            messages.append(
-                AIMessage(
-                    content=data["content"]
-                )
-            )
+    #         messages.append(
+    #             AIMessage(
+    #                 content=data["content"]
+    #             )
+    #         )
 
-    return messages
+    # return messages
+
+    return [
+        deserialize_message(
+            json.loads(raw_message)
+        )
+        for raw_message in raw_messages
+    ]
 
 
 def add_message(
@@ -60,10 +68,11 @@ def add_message(
     else:
         return
 
-    data = {
-        "type": message_type,
-        "content": message.content,
-    }
+    # data = {
+    #     "type": message_type,
+    #     "content": message.content,
+    # }
+    data = serialize_message(message)
 
     redis_client.rpush(
         key,
@@ -73,4 +82,63 @@ def add_message(
     redis_client.expire(
     key,
     60 * 60 * 24,
+    )
+
+
+def serialize_message(message: BaseMessage) -> dict:
+
+    if isinstance(message, HumanMessage):
+
+        return {
+            "type": "human",
+            "content": message.content,
+        }
+
+    if isinstance(message, AIMessage):
+
+        return {
+            "type": "ai",
+            "content": message.content,
+            "tool_calls": message.tool_calls,
+        }
+
+    if isinstance(message, ToolMessage):
+
+        return {
+            "type": "tool",
+            "content": message.content,
+            "tool_call_id": message.tool_call_id,
+        }
+
+    raise ValueError(
+        f"Unsupported message type: {type(message)}"
+    )
+
+
+def deserialize_message(data: dict) -> BaseMessage:
+
+    message_type = data["type"]
+
+    if message_type == "human":
+
+        return HumanMessage(
+            content=data["content"]
+        )
+
+    if message_type == "ai":
+
+        return AIMessage(
+            content=data["content"],
+            tool_calls=data.get("tool_calls", []),
+        )
+
+    if message_type == "tool":
+
+        return ToolMessage(
+            content=data["content"],
+            tool_call_id=data["tool_call_id"],
+        )
+
+    raise ValueError(
+        f"Unsupported message type: {message_type}"
     )

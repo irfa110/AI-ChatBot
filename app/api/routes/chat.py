@@ -70,7 +70,8 @@ async def chat_async_stream(request: ChatRequest):
 def chat_with_tools(request: ChatRequest):
 
     response = ask_with_tools(
-        message=request.message
+        session_id=request.session_id,
+        message=request.message,
     )
 
     return {

@@ -43,6 +43,9 @@ tool_chat_prompt = ChatPromptTemplate.from_messages(
             Do not use a tool when you can answer directly.
             """
         ),
+        MessagesPlaceholder(
+            variable_name="history"
+        ),
         (
             "human",
             "{message}"
