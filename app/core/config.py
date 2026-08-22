@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = True
     langsmith_project: str = "ai-chatbot"
 
+    redis_host: str = "localhost"
+    redis_port: int = 6380
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
