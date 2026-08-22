@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     redis_host: str = "localhost"
     redis_port: int = 6380
 
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

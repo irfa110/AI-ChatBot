@@ -12,6 +12,7 @@ dependencies = [
     "langsmith>=0.11.0",
     "pydantic-settings>=2.15.0",
     "python-dotenv>=1.2.2",
+    "python-jose[cryptography]>=3.5.0",
     "redis>=8.1.0",
     "uvicorn>=0.52.3",
 ]

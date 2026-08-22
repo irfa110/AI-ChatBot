@@ -7,11 +7,12 @@ from app.ai.tool_runner import execute_tool_calls
 from app.memory import get_history, add_message
 
 def stream_with_tools(
+    user_id: str,
     session_id: str,
     message: str,
 ):
 
-    history = get_history(session_id)
+    history = get_history(user_id, session_id)
 
     messages = tool_chat_prompt.format_messages(
         history=history,
@@ -23,6 +24,7 @@ def stream_with_tools(
     )
 
     add_message(
+        user_id,
         session_id,
         human_message,
     )
@@ -43,6 +45,7 @@ def stream_with_tools(
             )
 
             add_message(
+                user_id,
                 session_id,
                 AIMessage(
                     content=answer
@@ -56,6 +59,7 @@ def stream_with_tools(
 
         # Save AI tool call
         add_message(
+            user_id,
             session_id,
             response,
         )
@@ -70,6 +74,7 @@ def stream_with_tools(
             messages.append(tool_message)
 
             add_message(
+                user_id,
                 session_id,
                 tool_message,
             )

@@ -9,7 +9,10 @@ def extract_text(content) -> str:
 
         for block in content:
 
-            if isinstance(block, dict):
+            if isinstance(block, str):
+                text_parts.append(block)
+
+            elif isinstance(block, dict):
 
                 if block.get("type") == "text":
                     text_parts.append(
